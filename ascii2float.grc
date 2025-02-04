@@ -1,0 +1,331 @@
+options:
+  parameters:
+    author: Ben Cometto
+    catch_exceptions: 'True'
+    category: '[Pulse Amplitude Modulation]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: hb_qt_gui
+    hier_block_src_path: '.:'
+    id: ascii2float
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: ASCII to Float Symbols Hier Block
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: M
+  id: variable
+  parameters:
+    comment: ''
+    value: 2**bits_per_sym
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [216, 80.0]
+    rotation: 0
+    state: enabled
+- name: endianness
+  id: variable
+  parameters:
+    comment: ''
+    value: gr.endianness_t.GR_LSB_FIRST if is_LSB==1 else gr.endianness_t.GR_MSB_FIRST
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [280, 80.0]
+    rotation: 0
+    state: enabled
+- name: bits_per_sym
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: ''
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [400, 8.0]
+    rotation: 0
+    state: enabled
+- name: blocks_add_const_vxx_1
+  id: blocks_add_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '-(M-1) if is_polar ==1 else 0  '
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1064, 184.0]
+    rotation: 0
+    state: enabled
+- name: blocks_and_const_xx_0
+  id: blocks_and_const_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '(127 if is_7_bit_ascii==1 else 255) '
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [176, 184.0]
+    rotation: 0
+    state: enabled
+- name: blocks_char_to_float_0
+  id: blocks_char_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: '0.5 if is_polar == 1 else 1 '
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [912, 184.0]
+    rotation: 0
+    state: enabled
+- name: blocks_keep_m_in_n_0
+  id: blocks_keep_m_in_n
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    m: 7 if is_7_bit_ascii==1 else 8
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: '8'
+    offset: 0 if is_LSB else 1
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 168.0]
+    rotation: 0
+    state: enabled
+- name: blocks_packed_to_unpacked_xx_0
+  id: blocks_packed_to_unpacked_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    bits_per_chunk: bits_per_sym
+    comment: ''
+    endianness: endianness
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_ports: '1'
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [544, 176.0]
+    rotation: 0
+    state: enabled
+- name: digital_map_bb_0
+  id: digital_map_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    map: '[x for x in range(2**8)] if invert_bits==0 else [x for x in range(2**8-1,-1,-1)]'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [336, 184.0]
+    rotation: 0
+    state: enabled
+- name: import_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import numpy as np
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 8.0]
+    rotation: 0
+    state: enabled
+- name: invert_bits
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: ''
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [496, 8.0]
+    rotation: 0
+    state: enabled
+- name: is_7_bit_ascii
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: ''
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [304, 8.0]
+    rotation: 0
+    state: enabled
+- name: is_LSB
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: ''
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [664, 8.0]
+    rotation: 0
+    state: enabled
+- name: is_polar
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: ''
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 8.0]
+    rotation: 0
+    state: enabled
+- name: pad_sink_0
+  id: pad_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: out
+    num_streams: '1'
+    optional: 'False'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1216, 184.0]
+    rotation: 0
+    state: enabled
+- name: pad_source_0
+  id: pad_source
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: in
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_streams: '1'
+    optional: 'False'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [24, 184.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: part
+    label: ''
+    short_id: ''
+    type: ''
+    value: '32000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [216, 8.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [blocks_add_const_vxx_1, '0', pad_sink_0, '0']
+- [blocks_and_const_xx_0, '0', digital_map_bb_0, '0']
+- [blocks_char_to_float_0, '0', blocks_add_const_vxx_1, '0']
+- [blocks_keep_m_in_n_0, '0', blocks_char_to_float_0, '0']
+- [blocks_packed_to_unpacked_xx_0, '0', blocks_keep_m_in_n_0, '0']
+- [digital_map_bb_0, '0', blocks_packed_to_unpacked_xx_0, '0']
+- [pad_source_0, '0', blocks_and_const_xx_0, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.9.2
