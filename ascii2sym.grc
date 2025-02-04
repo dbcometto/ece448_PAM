@@ -33,6 +33,30 @@ options:
     state: enabled
 
 blocks:
+- name: M
+  id: variable
+  parameters:
+    comment: ''
+    value: 2**bits_per_sym
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [216, 80.0]
+    rotation: 0
+    state: enabled
+- name: endianness
+  id: variable
+  parameters:
+    comment: ''
+    value: gr.endianness_t.GR_LSB_FIRST if is_LSB==1 else gr.endianness_t.GR_MSB_FIRST
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [280, 80.0]
+    rotation: 0
+    state: enabled
 - name: samp_rate
   id: variable
   parameters:
@@ -43,23 +67,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [216, 8.0]
-    rotation: 0
-    state: enabled
-- name: M
-  id: parameter
-  parameters:
-    alias: ''
-    comment: ''
-    hide: none
-    label: ''
-    short_id: ''
-    type: ''
-    value: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [664, 8.0]
     rotation: 0
     state: enabled
 - name: bits_per_sym
@@ -79,31 +86,13 @@ blocks:
     coordinate: [400, 8.0]
     rotation: 0
     state: enabled
-- name: blocks_add_const_vxx_0
-  id: blocks_add_const_vxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    const: '(127 if is_7_bit_ascii==1 else 255) '
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [184, 184.0]
-    rotation: 0
-    state: enabled
 - name: blocks_add_const_vxx_1
   id: blocks_add_const_vxx
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    const: '-pol*(M-1) if pol ==1 else 0  '
+    const: '-(M-1) if is_polar ==1 else 0  '
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
@@ -112,7 +101,24 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [672, 296.0]
+    coordinate: [1064, 184.0]
+    rotation: 0
+    state: enabled
+- name: blocks_and_const_xx_0
+  id: blocks_and_const_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '(127 if is_7_bit_ascii==1 else 255) '
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [176, 184.0]
     rotation: 0
     state: enabled
 - name: blocks_char_to_float_0
@@ -123,13 +129,32 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    scale: '0.5 if pol == 1 else 1 '
+    scale: '0.5 if is_polar == 1 else 1 '
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [512, 296.0]
+    coordinate: [912, 184.0]
+    rotation: 0
+    state: enabled
+- name: blocks_keep_m_in_n_0
+  id: blocks_keep_m_in_n
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    m: 7 if is_7_bit_ascii==1 else 8
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: '8'
+    offset: 0 if is_LSB else 1
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 168.0]
     rotation: 0
     state: enabled
 - name: blocks_packed_to_unpacked_xx_0
@@ -137,9 +162,9 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    bits_per_chunk: '2'
+    bits_per_chunk: bits_per_sym
     comment: ''
-    endianness: gr.GR_MSB_FIRST
+    endianness: endianness
     maxoutbuf: '0'
     minoutbuf: '0'
     num_ports: '1'
@@ -148,7 +173,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [520, 176.0]
+    coordinate: [544, 176.0]
     rotation: 0
     state: enabled
 - name: digital_map_bb_0
@@ -157,14 +182,27 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    map: '[x for x in range(2**8)] if invert_bits == 0 else [x for x in range(2**8-1,-1,-1)] '
+    map: '[x for x in range(2**8)] if invert_bits==0 else [x for x in range(2**8-1,-1,-1)]'
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [328, 184.0]
+    coordinate: [336, 184.0]
+    rotation: 0
+    state: enabled
+- name: import_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import numpy as np
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 8.0]
     rotation: 0
     state: enabled
 - name: invert_bits
@@ -201,6 +239,40 @@ blocks:
     coordinate: [304, 8.0]
     rotation: 0
     state: enabled
+- name: is_LSB
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: ''
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [664, 8.0]
+    rotation: 0
+    state: enabled
+- name: is_polar
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: ''
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 8.0]
+    rotation: 0
+    state: enabled
 - name: pad_sink_0
   id: pad_sink
   parameters:
@@ -216,7 +288,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [816, 296.0]
+    coordinate: [1216, 184.0]
     rotation: 0
     state: enabled
 - name: pad_source_0
@@ -239,31 +311,15 @@ blocks:
     coordinate: [24, 184.0]
     rotation: 0
     state: enabled
-- name: pol
-  id: parameter
-  parameters:
-    alias: ''
-    comment: ''
-    hide: none
-    label: ''
-    short_id: ''
-    type: ''
-    value: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [584, 8.0]
-    rotation: 0
-    state: enabled
 
 connections:
-- [blocks_add_const_vxx_0, '0', digital_map_bb_0, '0']
 - [blocks_add_const_vxx_1, '0', pad_sink_0, '0']
+- [blocks_and_const_xx_0, '0', digital_map_bb_0, '0']
 - [blocks_char_to_float_0, '0', blocks_add_const_vxx_1, '0']
-- [blocks_packed_to_unpacked_xx_0, '0', blocks_char_to_float_0, '0']
+- [blocks_keep_m_in_n_0, '0', blocks_char_to_float_0, '0']
+- [blocks_packed_to_unpacked_xx_0, '0', blocks_keep_m_in_n_0, '0']
 - [digital_map_bb_0, '0', blocks_packed_to_unpacked_xx_0, '0']
-- [pad_source_0, '0', blocks_add_const_vxx_0, '0']
+- [pad_source_0, '0', blocks_and_const_xx_0, '0']
 
 metadata:
   file_format: 1
