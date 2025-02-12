@@ -187,12 +187,12 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '32000'
+    value: '64000'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [160, 8.0]
+    coordinate: [168, 8.0]
     rotation: 0
     state: enabled
 - name: sample_delay
@@ -207,7 +207,7 @@ blocks:
     start: '0'
     step: '1'
     stop: '100'
-    value: '0'
+    value: '1'
     widget: eng_slider
   states:
     bus_sink: false
@@ -240,7 +240,7 @@ blocks:
     start: '0'
     step: '1'
     stop: '100'
-    value: '0'
+    value: '7'
     widget: eng_slider
   states:
     bus_sink: false
@@ -261,6 +261,45 @@ blocks:
     coordinate: [1208, 8.0]
     rotation: 0
     state: enabled
+- name: am_demod_0
+  id: am_demod
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    fc: '30000'
+    gain: '3'
+    gui_hint: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [600, 472.0]
+    rotation: 0
+    state: disabled
+- name: am_mod_0
+  id: am_mod
+  parameters:
+    ac: '1'
+    affinity: ''
+    alias: ''
+    am: '0.2'
+    comment: ''
+    fc: '30000'
+    gui_hint: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [784, 312.0]
+    rotation: 0
+    state: disabled
 - name: analog_fastnoise_source_x_0
   id: analog_fastnoise_source_x
   parameters:
@@ -278,7 +317,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [432, 344.0]
+    coordinate: [304, 344.0]
     rotation: 0
     state: enabled
 - name: ascii2float_0
@@ -318,7 +357,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [744, 320.0]
+    coordinate: [616, 320.0]
     rotation: 0
     state: enabled
 - name: blocks_delay_0
@@ -338,7 +377,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 288.0]
+    coordinate: [360, 288.0]
     rotation: 0
     state: enabled
 - name: blocks_file_sink_0
@@ -348,7 +387,7 @@ blocks:
     alias: ''
     append: 'False'
     comment: ''
-    file: C:\ece448_PAM\test_output.bin
+    file: C:\workspace\ece448_PAM\test_output.bin
     type: byte
     unbuffered: 'False'
     vlen: '1'
@@ -356,7 +395,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1064, 536.0]
+    coordinate: [1064, 648.0]
     rotation: 0
     state: enabled
 - name: blocks_throttle2_0
@@ -377,7 +416,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [192, 176.0]
+    coordinate: [208, 176.0]
     rotation: 0
     state: enabled
 - name: blocks_vector_source_x_0
@@ -391,13 +430,13 @@ blocks:
     repeat: 'True'
     tags: '[msg_start]'
     type: byte
-    vector: (90,111)
+    vector: (69,67,69,52,52,56,32)
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [32, 168.0]
+    coordinate: [16, 168.0]
     rotation: 0
     state: enabled
 - name: float2ascii_0
@@ -421,7 +460,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [744, 504.0]
+    coordinate: [744, 616.0]
     rotation: 0
     state: enabled
 - name: pamRx_0
@@ -443,7 +482,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [272, 488.0]
+    coordinate: [272, 600.0]
     rotation: 0
     state: enabled
 - name: pamTx_0
@@ -781,7 +820,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1168, 328.0]
+    coordinate: [1168, 480.0]
     rotation: 0
     state: enabled
 - name: virtual_sink_1
@@ -807,7 +846,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [592, 608.0]
+    coordinate: [592, 720.0]
     rotation: 0
     state: enabled
 - name: virtual_sink_2_0
@@ -820,7 +859,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 464.0]
+    coordinate: [600, 576.0]
     rotation: 0
     state: enabled
 - name: virtual_sink_2_1
@@ -833,7 +872,20 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 520.0]
+    coordinate: [600, 632.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_3
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: data_am
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1008, 328.0]
     rotation: 0
     state: enabled
 - name: virtual_source_0
@@ -846,7 +898,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [112, 520.0]
+    coordinate: [112, 632.0]
     rotation: 0
     state: enabled
 - name: virtual_source_1
@@ -940,12 +992,28 @@ blocks:
     coordinate: [1296, 600.0]
     rotation: 0
     state: enabled
+- name: virtual_source_6
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: data_am
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [144, 480.0]
+    rotation: 0
+    state: enabled
 
 connections:
+- [am_demod_0, '0', virtual_sink_0_0, '0']
+- [am_mod_0, '0', virtual_sink_3, '0']
 - [analog_fastnoise_source_x_0, '0', blocks_add_xx_0, '1']
 - [ascii2float_0, '0', pamTx_0, '0']
 - [ascii2float_0, '0', virtual_sink_1, '0']
-- [blocks_add_xx_0, '0', virtual_sink_0_0, '0']
+- [blocks_add_xx_0, '0', am_mod_0, '0']
+- [blocks_add_xx_0, '0', virtual_sink_3, '0']
 - [blocks_delay_0, '0', blocks_add_xx_0, '0']
 - [blocks_throttle2_0, '0', ascii2float_0, '0']
 - [blocks_vector_source_x_0, '0', blocks_throttle2_0, '0']
@@ -963,7 +1031,9 @@ connections:
 - [virtual_source_4_0, '0', qtgui_time_sink_x_0_0_0, '0']
 - [virtual_source_5, '0', qtgui_time_sink_x_0_0, '1']
 - [virtual_source_5_0, '0', qtgui_time_sink_x_0_0_0, '1']
+- [virtual_source_6, '0', am_demod_0, '0']
+- [virtual_source_6, '0', virtual_sink_0_0, '0']
 
 metadata:
   file_format: 1
-  grc_version: 3.10.9.2
+  grc_version: 3.10.10.0

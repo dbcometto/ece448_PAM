@@ -7,7 +7,7 @@
 # GNU Radio Python Flow Graph
 # Title: PAM Main File
 # Author: Ben Cometto
-# GNU Radio version: 3.10.9.2
+# GNU Radio version: 3.10.10.0
 
 from PyQt5 import Qt
 from gnuradio import qtgui
@@ -72,10 +72,10 @@ class PAM_main(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.tail_length = tail_length = 3
-        self.symbol_delay = symbol_delay = 0
+        self.symbol_delay = symbol_delay = 7
         self.samples_per_symbol = samples_per_symbol = 10
-        self.sample_delay = sample_delay = 0
-        self.samp_rate = samp_rate = 32000
+        self.sample_delay = sample_delay = 1
+        self.samp_rate = samp_rate = 64000
         self.pulse_type = pulse_type = "rect"
         self.noise_amplitude = noise_amplitude = 0
         self.msg_start = msg_start = gr.tag_utils.python_to_tag((0, pmt.intern("Start"), pmt.intern("Start"), pmt.intern("src")))
@@ -91,10 +91,10 @@ class PAM_main(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
-        self._symbol_delay_range = qtgui.Range(0, 100, 1, 0, 200)
+        self._symbol_delay_range = qtgui.Range(0, 100, 1, 7, 200)
         self._symbol_delay_win = qtgui.RangeWidget(self._symbol_delay_range, self.set_symbol_delay, "'symbol_delay'", "eng_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._symbol_delay_win)
-        self._sample_delay_range = qtgui.Range(0, 100, 1, 0, 200)
+        self._sample_delay_range = qtgui.Range(0, 100, 1, 1, 200)
         self._sample_delay_win = qtgui.RangeWidget(self._sample_delay_range, self.set_sample_delay, "'sample_delay'", "eng_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._sample_delay_win)
         # Create the options list
@@ -300,9 +300,9 @@ class PAM_main(gr.top_block, Qt.QWidget):
         )
 
         self.top_layout.addWidget(self.float2ascii_0)
-        self.blocks_vector_source_x_0 = blocks.vector_source_b((90,111), True, 1, [msg_start])
+        self.blocks_vector_source_x_0 = blocks.vector_source_b((69,67,69,52,52,56,32), True, 1, [msg_start])
         self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_char*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, 'C:\\ece448_PAM\\test_output.bin', False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, 'C:\\workspace\\ece448_PAM\\test_output.bin', False)
         self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_delay_0 = blocks.delay(gr.sizeof_float*1, channel_delay)
         self.blocks_add_xx_0 = blocks.add_vff(1)
@@ -333,8 +333,8 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self.connect((self.float2ascii_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.pamRx_0, 2), (self.float2ascii_0, 0))
         self.connect((self.pamRx_0, 2), (self.qtgui_time_sink_x_0, 1))
-        self.connect((self.pamRx_0, 1), (self.qtgui_time_sink_x_0_0_0, 1))
         self.connect((self.pamRx_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
+        self.connect((self.pamRx_0, 1), (self.qtgui_time_sink_x_0_0_0, 1))
         self.connect((self.pamTx_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.pamTx_0, 0), (self.qtgui_time_sink_x_0_0, 0))
 
@@ -411,7 +411,7 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
     def set_msg_start(self, msg_start):
         self.msg_start = msg_start
-        self.blocks_vector_source_x_0.set_data((90,111), [self.msg_start])
+        self.blocks_vector_source_x_0.set_data((69,67,69,52,52,56,32), [self.msg_start])
 
     def get_is_polar(self):
         return self.is_polar
