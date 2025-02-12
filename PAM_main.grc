@@ -114,7 +114,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1648, 16.0]
+    coordinate: [1648, 8.0]
     rotation: 0
     state: enabled
 - name: invert_bits
@@ -218,7 +218,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1536, 16.0]
+    coordinate: [1536, 8.0]
     rotation: 0
     state: enabled
 - name: pulse_type
@@ -281,7 +281,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1536, 136.0]
+    coordinate: [1536, 128.0]
     rotation: 0
     state: enabled
 - name: samples_per_symbol
@@ -314,7 +314,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1640, 136.0]
+    coordinate: [1648, 128.0]
     rotation: 0
     state: enabled
 - name: tail_length
@@ -550,7 +550,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1752, 152.0]
+    coordinate: [1760, 128.0]
     rotation: 0
     state: enabled
 - name: note_1
@@ -1095,7 +1095,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [112, 632.0]
+    coordinate: [96, 632.0]
     rotation: 0
     state: enabled
 - name: virtual_source_1

@@ -21,8 +21,9 @@ from ascii2float import ascii2float  # grc-generated hier_block
 from float2ascii import float2ascii  # grc-generated hier_block
 from gnuradio import analog
 from gnuradio import blocks
-from gnuradio import gr
+from gnuradio import filter
 from gnuradio.filter import firdes
+from gnuradio import gr
 from gnuradio.fft import window
 import signal
 from PyQt5 import Qt
@@ -372,6 +373,15 @@ class PAM_main(gr.top_block, Qt.QWidget):
         )
 
         self.top_layout.addWidget(self.pamRx_0)
+        self.low_pass_filter_0 = filter.fir_filter_fff(
+            1,
+            firdes.low_pass(
+                1,
+                samp_rate,
+                10000,
+                1000,
+                window.WIN_HAMMING,
+                6.76))
         self.float2ascii_0 = float2ascii(
             bits_per_sym=bits_per_sym,
             gain=1,
@@ -412,16 +422,17 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self.connect((self.analog_fastnoise_source_x_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.ascii2float_0, 0), (self.pamTx_0, 0))
         self.connect((self.ascii2float_0, 0), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self.pamRx_0, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self.qtgui_time_sink_x_0_0, 1))
+        self.connect((self.blocks_add_xx_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.blocks_delay_0, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.ascii2float_0, 0))
         self.connect((self.blocks_vector_source_x_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.float2ascii_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.pamRx_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.qtgui_time_sink_x_0_0, 1))
         self.connect((self.pamRx_0, 2), (self.float2ascii_0, 0))
         self.connect((self.pamRx_0, 2), (self.qtgui_time_sink_x_0, 1))
-        self.connect((self.pamRx_0, 1), (self.qtgui_time_sink_x_0_0_0, 1))
         self.connect((self.pamRx_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
+        self.connect((self.pamRx_0, 1), (self.qtgui_time_sink_x_0_0_0, 1))
         self.connect((self.pamTx_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.pamTx_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.pamTx_0, 0), (self.qtgui_time_sink_x_0_0, 0))
@@ -444,6 +455,7 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self.ascii2float_0.set_samp_rate(self.samp_rate)
         self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
         self.float2ascii_0.set_samp_rate(self.samp_rate)
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 10000, 1000, window.WIN_HAMMING, 6.76))
         self.pamRx_0.set_samp_rate(self.samp_rate)
         self.pamTx_0.set_samp_rate(self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
