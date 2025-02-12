@@ -71,12 +71,13 @@ class PAM_main(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
+        self.samp_rate = samp_rate = 256000
+        self.baud_rate = baud_rate = 25600
         self.tail_length = tail_length = 3
-        self.symbol_delay = symbol_delay = 7
-        self.samples_per_symbol = samples_per_symbol = 10
-        self.sample_delay = sample_delay = 1
-        self.samp_rate = samp_rate = 64000
-        self.pulse_type = pulse_type = "rect"
+        self.symbol_delay = symbol_delay = 4
+        self.samples_per_symbol = samples_per_symbol = round(samp_rate/baud_rate)
+        self.sample_delay = sample_delay = 6
+        self.pulse_type = pulse_type = "rcf"
         self.noise_amplitude = noise_amplitude = 0
         self.msg_start = msg_start = gr.tag_utils.python_to_tag((0, pmt.intern("Start"), pmt.intern("Start"), pmt.intern("src")))
         self.is_polar = is_polar = 1
@@ -91,16 +92,19 @@ class PAM_main(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
-        self._symbol_delay_range = qtgui.Range(0, 100, 1, 7, 200)
+        self._tail_length_range = qtgui.Range(1, 10, 0.1, 3, 200)
+        self._tail_length_win = qtgui.RangeWidget(self._tail_length_range, self.set_tail_length, "'tail_length'", "eng", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._tail_length_win)
+        self._symbol_delay_range = qtgui.Range(0, 100, 1, 4, 200)
         self._symbol_delay_win = qtgui.RangeWidget(self._symbol_delay_range, self.set_symbol_delay, "'symbol_delay'", "eng_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._symbol_delay_win)
-        self._sample_delay_range = qtgui.Range(0, 100, 1, 1, 200)
+        self._sample_delay_range = qtgui.Range(0, 100, 1, 6, 200)
         self._sample_delay_win = qtgui.RangeWidget(self._sample_delay_range, self.set_sample_delay, "'sample_delay'", "eng_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._sample_delay_win)
         # Create the options list
-        self._pulse_type_options = ['rect', 'rcf']
+        self._pulse_type_options = ['rect', 'rcf', 'sinc', 'ramp']
         # Create the labels list
-        self._pulse_type_labels = ['rect', 'rcf']
+        self._pulse_type_labels = ['rect', 'rcf', 'sinc', 'ramp']
         # Create the combo box
         # Create the radio buttons
         self._pulse_type_group_box = Qt.QGroupBox("'pulse_type'" + ": ")
@@ -122,9 +126,46 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self._pulse_type_button_group.buttonClicked[int].connect(
             lambda i: self.set_pulse_type(self._pulse_type_options[i]))
         self.top_layout.addWidget(self._pulse_type_group_box)
-        self._noise_amplitude_range = qtgui.Range(0, 1, 0.01, 0, 200)
+        self._noise_amplitude_range = qtgui.Range(0, 5, 0.01, 0, 200)
         self._noise_amplitude_win = qtgui.RangeWidget(self._noise_amplitude_range, self.set_noise_amplitude, "'noise_amplitude'", "eng_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._noise_amplitude_win)
+        _is_polar_check_box = Qt.QCheckBox("'is_polar'")
+        self._is_polar_choices = {True: 1, False: 0}
+        self._is_polar_choices_inv = dict((v,k) for k,v in self._is_polar_choices.items())
+        self._is_polar_callback = lambda i: Qt.QMetaObject.invokeMethod(_is_polar_check_box, "setChecked", Qt.Q_ARG("bool", self._is_polar_choices_inv[i]))
+        self._is_polar_callback(self.is_polar)
+        _is_polar_check_box.stateChanged.connect(lambda i: self.set_is_polar(self._is_polar_choices[bool(i)]))
+        self.top_layout.addWidget(_is_polar_check_box)
+        _is_LSB_check_box = Qt.QCheckBox("'is_LSB'")
+        self._is_LSB_choices = {True: 1, False: 0}
+        self._is_LSB_choices_inv = dict((v,k) for k,v in self._is_LSB_choices.items())
+        self._is_LSB_callback = lambda i: Qt.QMetaObject.invokeMethod(_is_LSB_check_box, "setChecked", Qt.Q_ARG("bool", self._is_LSB_choices_inv[i]))
+        self._is_LSB_callback(self.is_LSB)
+        _is_LSB_check_box.stateChanged.connect(lambda i: self.set_is_LSB(self._is_LSB_choices[bool(i)]))
+        self.top_layout.addWidget(_is_LSB_check_box)
+        _is_7_bit_ascii_check_box = Qt.QCheckBox("'is_7_bit_ascii'")
+        self._is_7_bit_ascii_choices = {True: 1, False: 0}
+        self._is_7_bit_ascii_choices_inv = dict((v,k) for k,v in self._is_7_bit_ascii_choices.items())
+        self._is_7_bit_ascii_callback = lambda i: Qt.QMetaObject.invokeMethod(_is_7_bit_ascii_check_box, "setChecked", Qt.Q_ARG("bool", self._is_7_bit_ascii_choices_inv[i]))
+        self._is_7_bit_ascii_callback(self.is_7_bit_ascii)
+        _is_7_bit_ascii_check_box.stateChanged.connect(lambda i: self.set_is_7_bit_ascii(self._is_7_bit_ascii_choices[bool(i)]))
+        self.top_layout.addWidget(_is_7_bit_ascii_check_box)
+        _invert_bits_check_box = Qt.QCheckBox("'invert_bits'")
+        self._invert_bits_choices = {True: 1, False: 0}
+        self._invert_bits_choices_inv = dict((v,k) for k,v in self._invert_bits_choices.items())
+        self._invert_bits_callback = lambda i: Qt.QMetaObject.invokeMethod(_invert_bits_check_box, "setChecked", Qt.Q_ARG("bool", self._invert_bits_choices_inv[i]))
+        self._invert_bits_callback(self.invert_bits)
+        _invert_bits_check_box.stateChanged.connect(lambda i: self.set_invert_bits(self._invert_bits_choices[bool(i)]))
+        self.top_layout.addWidget(_invert_bits_check_box)
+        self._channel_delay_range = qtgui.Range(0, 100, 1, 0, 200)
+        self._channel_delay_win = qtgui.RangeWidget(self._channel_delay_range, self.set_channel_delay, "'channel_delay'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._channel_delay_win)
+        self._bits_per_sym_range = qtgui.Range(1, 100, 1, 1, 200)
+        self._bits_per_sym_win = qtgui.RangeWidget(self._bits_per_sym_range, self.set_bits_per_sym, "'bits_per_sym'", "eng", int, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._bits_per_sym_win)
+        self._alpha_range = qtgui.Range(0, 5, 0.01, 0.5, 200)
+        self._alpha_win = qtgui.RangeWidget(self._alpha_range, self.set_alpha, "'alpha'", "eng", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._alpha_win)
         self.qtgui_time_sink_x_0_0_0 = qtgui.time_sink_f(
             200, #size
             samp_rate, #samp_rate
@@ -269,6 +310,49 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
         self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_time_sink_x_0_win)
+        self.qtgui_freq_sink_x_0 = qtgui.freq_sink_f(
+            16384, #size
+            window.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            samp_rate, #bw
+            "Tx in Freq", #name
+            1,
+            None # parent
+        )
+        self.qtgui_freq_sink_x_0.set_update_time(0.10)
+        self.qtgui_freq_sink_x_0.set_y_axis((-140), 10)
+        self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
+        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
+        self.qtgui_freq_sink_x_0.enable_autoscale(False)
+        self.qtgui_freq_sink_x_0.enable_grid(False)
+        self.qtgui_freq_sink_x_0.set_fft_average(1.0)
+        self.qtgui_freq_sink_x_0.enable_axis_labels(True)
+        self.qtgui_freq_sink_x_0.enable_control_panel(False)
+        self.qtgui_freq_sink_x_0.set_fft_window_normalized(False)
+
+
+        self.qtgui_freq_sink_x_0.set_plot_pos_half(not True)
+
+        labels = ['', '', '', '', '',
+            '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+            "magenta", "yellow", "dark red", "dark green", "dark blue"]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_freq_sink_x_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_freq_sink_x_0.set_line_label(i, labels[i])
+            self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
+            self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
+            self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
         self.pamTx_0 = pamTx(
             alpha=alpha,
             pulse_type=pulse_type,
@@ -306,6 +390,9 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_delay_0 = blocks.delay(gr.sizeof_float*1, channel_delay)
         self.blocks_add_xx_0 = blocks.add_vff(1)
+        self._baud_rate_range = qtgui.Range(1, 50000, 1, 25600, 200)
+        self._baud_rate_win = qtgui.RangeWidget(self._baud_rate_range, self.set_baud_rate, "'baud_rate'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._baud_rate_win)
         self.ascii2float_0 = ascii2float(
             bits_per_sym=bits_per_sym,
             invert_bits=invert_bits,
@@ -333,9 +420,10 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self.connect((self.float2ascii_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.pamRx_0, 2), (self.float2ascii_0, 0))
         self.connect((self.pamRx_0, 2), (self.qtgui_time_sink_x_0, 1))
-        self.connect((self.pamRx_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
         self.connect((self.pamRx_0, 1), (self.qtgui_time_sink_x_0_0_0, 1))
+        self.connect((self.pamRx_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
         self.connect((self.pamTx_0, 0), (self.blocks_delay_0, 0))
+        self.connect((self.pamTx_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.pamTx_0, 0), (self.qtgui_time_sink_x_0_0, 0))
 
 
@@ -346,6 +434,29 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self.wait()
 
         event.accept()
+
+    def get_samp_rate(self):
+        return self.samp_rate
+
+    def set_samp_rate(self, samp_rate):
+        self.samp_rate = samp_rate
+        self.set_samples_per_symbol(round(self.samp_rate/self.baud_rate))
+        self.ascii2float_0.set_samp_rate(self.samp_rate)
+        self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
+        self.float2ascii_0.set_samp_rate(self.samp_rate)
+        self.pamRx_0.set_samp_rate(self.samp_rate)
+        self.pamTx_0.set_samp_rate(self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
+        self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
+        self.qtgui_time_sink_x_0_0.set_samp_rate(self.samp_rate)
+        self.qtgui_time_sink_x_0_0_0.set_samp_rate(self.samp_rate)
+
+    def get_baud_rate(self):
+        return self.baud_rate
+
+    def set_baud_rate(self, baud_rate):
+        self.baud_rate = baud_rate
+        self.set_samples_per_symbol(round(self.samp_rate/self.baud_rate))
 
     def get_tail_length(self):
         return self.tail_length
@@ -377,20 +488,6 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self.sample_delay = sample_delay
         self.pamRx_0.set_sample_delay(self.sample_delay)
 
-    def get_samp_rate(self):
-        return self.samp_rate
-
-    def set_samp_rate(self, samp_rate):
-        self.samp_rate = samp_rate
-        self.ascii2float_0.set_samp_rate(self.samp_rate)
-        self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
-        self.float2ascii_0.set_samp_rate(self.samp_rate)
-        self.pamRx_0.set_samp_rate(self.samp_rate)
-        self.pamTx_0.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_0_0.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_0_0_0.set_samp_rate(self.samp_rate)
-
     def get_pulse_type(self):
         return self.pulse_type
 
@@ -418,6 +515,7 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
     def set_is_polar(self, is_polar):
         self.is_polar = is_polar
+        self._is_polar_callback(self.is_polar)
         self.ascii2float_0.set_is_polar(self.is_polar)
         self.float2ascii_0.set_is_polar(self.is_polar)
 
@@ -426,6 +524,7 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
     def set_is_LSB(self, is_LSB):
         self.is_LSB = is_LSB
+        self._is_LSB_callback(self.is_LSB)
         self.ascii2float_0.set_is_LSB(self.is_LSB)
         self.float2ascii_0.set_is_LSB(self.is_LSB)
 
@@ -434,6 +533,7 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
     def set_is_7_bit_ascii(self, is_7_bit_ascii):
         self.is_7_bit_ascii = is_7_bit_ascii
+        self._is_7_bit_ascii_callback(self.is_7_bit_ascii)
         self.ascii2float_0.set_is_7_bit_ascii(self.is_7_bit_ascii)
         self.float2ascii_0.set_is_7_bit_ascii(self.is_7_bit_ascii)
 
@@ -442,6 +542,7 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
     def set_invert_bits(self, invert_bits):
         self.invert_bits = invert_bits
+        self._invert_bits_callback(self.invert_bits)
         self.ascii2float_0.set_invert_bits(self.invert_bits)
         self.float2ascii_0.set_invert_bits(self.invert_bits)
 
