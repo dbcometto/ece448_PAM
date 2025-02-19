@@ -1,10 +1,5 @@
 # This is the python script that will decode the FSK ascii data using push/pull
-# 
-#
-# Written by Ben Cometto, 7 Dec 2024
-#
-#
-#
+# Written by Ben Cometto, 18 Feb 2025
 
 import zmq
 import struct

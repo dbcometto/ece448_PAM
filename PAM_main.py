@@ -17,14 +17,13 @@ sys.path.append(os.environ.get('GRC_HIER_PATH', os.path.expanduser('~/.grc_gnura
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QObject, pyqtSlot
-from am_demod import am_demod  # grc-generated hier_block
-from am_mod import am_mod  # grc-generated hier_block
 from ascii2float import ascii2float  # grc-generated hier_block
 from float2ascii import float2ascii  # grc-generated hier_block
 from gnuradio import analog
 from gnuradio import blocks
-from gnuradio import gr
+from gnuradio import filter
 from gnuradio.filter import firdes
+from gnuradio import gr
 from gnuradio.fft import window
 import signal
 from PyQt5 import Qt
@@ -110,9 +109,6 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self._sample_delay_range = qtgui.Range(0, samples_per_symbol*8-1, 1, 46, 200)
         self._sample_delay_win = qtgui.RangeWidget(self._sample_delay_range, self.set_sample_delay, "'sample_delay'", "eng_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._sample_delay_win)
-        self._recv_gain_range = qtgui.Range(0, 50, 0.01, 15, 200)
-        self._recv_gain_win = qtgui.RangeWidget(self._recv_gain_range, self.set_recv_gain, "'recv_gain'", "dial", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._recv_gain_win)
         # Create the options list
         self._pulse_type_options = ['rect', 'rcf', 'sinc', 'ramp']
         # Create the labels list
@@ -179,6 +175,9 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self._alpha_win = qtgui.RangeWidget(self._alpha_range, self.set_alpha, "'alpha'", "eng", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._alpha_win)
         self.zeromq_push_sink_0 = zeromq.push_sink(gr.sizeof_char, 1, 'tcp://localhost:4444', 1, False, (-1), True)
+        self._recv_gain_range = qtgui.Range(0, 50, 0.01, 15, 200)
+        self._recv_gain_win = qtgui.RangeWidget(self._recv_gain_range, self.set_recv_gain, "'recv_gain'", "dial", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._recv_gain_win)
         self.qtgui_time_sink_x_1 = qtgui.time_sink_f(
             (samples_per_symbol*20), #size
             samp_rate, #samp_rate
@@ -231,7 +230,7 @@ class PAM_main(gr.top_block, Qt.QWidget):
             800, #size
             samp_rate, #samp_rate
             "Rx Output", #name
-            3, #number of inputs
+            2, #number of inputs
             None # parent
         )
         self.qtgui_time_sink_x_0_0_0.set_update_time(0.10)
@@ -262,7 +261,7 @@ class PAM_main(gr.top_block, Qt.QWidget):
             -1, -1, -1, -1, -1]
 
 
-        for i in range(3):
+        for i in range(2):
             if len(labels[i]) == 0:
                 self.qtgui_time_sink_x_0_0_0.set_line_label(i, "Data {0}".format(i))
             else:
@@ -476,6 +475,33 @@ class PAM_main(gr.top_block, Qt.QWidget):
         )
 
         self.top_layout.addWidget(self.pamRx_0)
+        self.low_pass_filter_0_0_0 = filter.interp_fir_filter_fff(
+            1,
+            firdes.low_pass(
+                1,
+                samp_rate,
+                20000,
+                1000,
+                window.WIN_HAMMING,
+                6.76))
+        self.low_pass_filter_0_0 = filter.interp_fir_filter_fff(
+            1,
+            firdes.low_pass(
+                1,
+                samp_rate,
+                20000,
+                1000,
+                window.WIN_HAMMING,
+                6.76))
+        self.low_pass_filter_0 = filter.interp_fir_filter_fff(
+            1,
+            firdes.low_pass(
+                1,
+                samp_rate,
+                20000,
+                1000,
+                window.WIN_HAMMING,
+                6.76))
         self.float2ascii_0 = float2ascii(
             bits_per_sym=bits_per_sym,
             gain=1,
@@ -510,51 +536,35 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
         self.top_layout.addWidget(self.ascii2float_0)
         self.analog_fastnoise_source_x_0 = analog.fastnoise_source_f(analog.GR_GAUSSIAN, noise_amplitude, 42, 8192)
-        self.am_mod_0 = am_mod(
-            ac=ac,
-            am=am,
-            fc=fc,
-            samp_rate=samp_rate,
-        )
-
-        self.top_layout.addWidget(self.am_mod_0)
-        self.am_demod_0 = am_demod(
-            fc=fc,
-            filter_taps=filter_taps,
-            gain=recv_gain,
-            samp_rate=samp_rate,
-        )
-
-        self.top_layout.addWidget(self.am_demod_0)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.am_demod_0, 0), (self.blocks_moving_average_xx_1, 0))
-        self.connect((self.am_demod_0, 0), (self.blocks_sub_xx_0, 0))
-        self.connect((self.am_demod_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
-        self.connect((self.am_demod_0, 0), (self.qtgui_time_sink_x_0_0, 1))
-        self.connect((self.am_demod_0, 0), (self.qtgui_time_sink_x_1, 0))
-        self.connect((self.am_mod_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.analog_fastnoise_source_x_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.ascii2float_0, 0), (self.blocks_delay_1, 0))
         self.connect((self.ascii2float_0, 0), (self.pamTx_0, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self.am_demod_0, 0))
+        self.connect((self.blocks_add_xx_0, 0), (self.blocks_moving_average_xx_1, 0))
+        self.connect((self.blocks_add_xx_0, 0), (self.blocks_sub_xx_0, 0))
+        self.connect((self.blocks_add_xx_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
+        self.connect((self.blocks_add_xx_0, 0), (self.qtgui_time_sink_x_0_0, 1))
+        self.connect((self.blocks_add_xx_0, 0), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.blocks_delay_0, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.blocks_delay_1, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.blocks_delay_1_0, 0), (self.qtgui_time_sink_x_0_0, 0))
-        self.connect((self.blocks_delay_1_0, 0), (self.qtgui_time_sink_x_0_0_0, 2))
         self.connect((self.blocks_moving_average_xx_1, 0), (self.blocks_sub_xx_0, 1))
-        self.connect((self.blocks_sub_xx_0, 0), (self.pamRx_0, 0))
+        self.connect((self.blocks_sub_xx_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.ascii2float_0, 0))
         self.connect((self.blocks_vector_source_x_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.float2ascii_0, 0), (self.zeromq_push_sink_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.low_pass_filter_0_0, 0))
+        self.connect((self.low_pass_filter_0_0, 0), (self.low_pass_filter_0_0_0, 0))
+        self.connect((self.low_pass_filter_0_0_0, 0), (self.pamRx_0, 0))
         self.connect((self.pamRx_0, 2), (self.float2ascii_0, 0))
         self.connect((self.pamRx_0, 2), (self.qtgui_time_sink_x_0, 1))
         self.connect((self.pamRx_0, 1), (self.qtgui_time_sink_x_0_0_0, 1))
         self.connect((self.pamRx_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
-        self.connect((self.pamTx_0, 0), (self.am_mod_0, 0))
+        self.connect((self.pamTx_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.pamTx_0, 0), (self.blocks_delay_1_0, 0))
         self.connect((self.pamTx_0, 0), (self.qtgui_freq_sink_x_0, 0))
 
@@ -574,11 +584,10 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.set_filter_taps(firdes.low_pass(1.0, self.samp_rate, self.fc/2, round(0.1*self.fc), window.WIN_HAMMING, 6.76))
         self.set_samples_per_symbol(round(self.samp_rate/self.baud_rate))
-        self.am_demod_0.set_samp_rate(self.samp_rate)
-        self.am_mod_0.set_samp_rate(self.samp_rate)
         self.ascii2float_0.set_samp_rate(self.samp_rate)
         self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
         self.float2ascii_0.set_samp_rate(self.samp_rate)
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 20000, 1000, window.WIN_HAMMING, 6.76))
         self.pamRx_0.set_samp_rate(self.samp_rate)
         self.pamTx_0.set_samp_rate(self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
@@ -587,6 +596,8 @@ class PAM_main(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_0_0.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_0_0_0.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
+        self.low_pass_filter_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 20000, 1000, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 20000, 1000, window.WIN_HAMMING, 6.76))
 
     def get_fc(self):
         return self.fc
@@ -594,8 +605,6 @@ class PAM_main(gr.top_block, Qt.QWidget):
     def set_fc(self, fc):
         self.fc = fc
         self.set_filter_taps(firdes.low_pass(1.0, self.samp_rate, self.fc/2, round(0.1*self.fc), window.WIN_HAMMING, 6.76))
-        self.am_demod_0.set_fc(self.fc)
-        self.am_mod_0.set_fc(self.fc)
 
     def get_filter_taps(self):
         return self.filter_taps
@@ -603,7 +612,6 @@ class PAM_main(gr.top_block, Qt.QWidget):
     def set_filter_taps(self, filter_taps):
         self.filter_taps = filter_taps
         self.set_filter_delay(round((len(self.filter_taps)-1)/2))
-        self.am_demod_0.set_filter_taps(self.filter_taps)
 
     def get_baud_rate(self):
         return self.baud_rate
@@ -649,7 +657,6 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
     def set_recv_gain(self, recv_gain):
         self.recv_gain = recv_gain
-        self.am_demod_0.set_gain(self.recv_gain)
 
     def get_pulse_type(self):
         return self.pulse_type
@@ -735,7 +742,6 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
     def set_am(self, am):
         self.am = am
-        self.am_mod_0.set_am(self.am)
 
     def get_alpha(self):
         return self.alpha
@@ -749,7 +755,6 @@ class PAM_main(gr.top_block, Qt.QWidget):
 
     def set_ac(self, ac):
         self.ac = ac
-        self.am_mod_0.set_ac(self.ac)
 
 
 
