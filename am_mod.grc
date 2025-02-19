@@ -72,7 +72,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    amp: '1'
+    amp: ac
     comment: ''
     freq: fc
     maxoutbuf: '0'
@@ -96,7 +96,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: ac
+    const: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float

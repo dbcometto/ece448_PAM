@@ -109,6 +109,42 @@ blocks:
     coordinate: [296, 8.0]
     rotation: 0
     state: enabled
+- name: filter_taps
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: ''
+    short_id: ''
+    type: ''
+    value: '[1,1]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [464, 16.0]
+    rotation: 0
+    state: enabled
+- name: fir_filter_xxx_0
+  id: fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: '0'
+    taps: filter_taps
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [496, 248.0]
+    rotation: 0
+    state: enabled
 - name: gain
   id: parameter
   parameters:
@@ -124,30 +160,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [376, 8.0]
-    rotation: 0
-    state: enabled
-- name: low_pass_filter_0
-  id: low_pass_filter
-  parameters:
-    affinity: ''
-    alias: ''
-    beta: '6.76'
-    comment: ''
-    cutoff_freq: fc
-    decim: '1'
-    gain: '1'
-    interp: '1'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samp_rate: samp_rate
-    type: fir_filter_fff
-    width: int(0.1*fc)
-    win: window.WIN_HAMMING
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [504, 208.0]
     rotation: 0
     state: enabled
 - name: pad_sink_0
@@ -209,8 +221,8 @@ blocks:
 connections:
 - [analog_sig_source_x_0, '0', blocks_multiply_xx_0, '1']
 - [blocks_multiply_const_vxx_0, '0', pad_sink_0, '0']
-- [blocks_multiply_xx_0, '0', low_pass_filter_0, '0']
-- [low_pass_filter_0, '0', blocks_multiply_const_vxx_0, '0']
+- [blocks_multiply_xx_0, '0', fir_filter_xxx_0, '0']
+- [fir_filter_xxx_0, '0', blocks_multiply_const_vxx_0, '0']
 - [pad_source_0, '0', blocks_multiply_xx_0, '0']
 
 metadata:
